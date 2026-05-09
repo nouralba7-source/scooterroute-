@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ScooterRoute NL</title>
+<meta name="theme-color" content="#f97316">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ScooterRoute">
+<link id="manifest-link" rel="manifest">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --or:#f97316;--or-dk:#ea6808;--or-lt:#fff7ed;
+  --txt:#18181b;--txt2:#71717a;--bdr:#e4e4e7;
+  --surf:#f4f4f5;--bg:#fff;
+  --sh:0 4px 20px rgba(0,0,0,.10),0 1px 4px rgba(0,0,0,.06);
+}
+html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;overflow:hidden;background:#dde1e5}
+#map{position:fixed;inset:0;z-index:0}
+
+#panel{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:var(--bg);border-radius:0 0 22px 22px;box-shadow:var(--sh);
+  padding-top:max(env(safe-area-inset-top),14px);
+  padding-left:14px;padding-right:14px;padding-bottom:12px;
+}
+.hd{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.logo{font-size:17px;font-weight:800;color:var(--txt);letter-spacing:-.4px}
+.logo em{color:var(--or);font-style:normal}
+.badge{margin-left:auto;font-size:11px;font-weight:600;background:var(--or-lt);color:var(--or);padding:3px 8px;border-radius:20px}
+
+.fields{position:relative}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.d-from{border:2.5px solid var(--or);background:white}
+.d-to{background:var(--or)}
+.line{width:2px;height:14px;background:var(--bdr);margin-left:4.5px;margin-bottom:6px}
+
+.inp{
+  flex:1;height:44px;border:1.5px solid var(--bdr);border-radius:11px;
+  padding:0 12px;font-size:15px;color:var(--txt);background:var(--surf);
+  outline:none;transition:border-color .15s,background .15s;-webkit-appearance:none;
+}
+.inp:focus{border-color:var(--or);background:white}
+.inp.resolved{border-color:#22c55e;background:#f0fdf4}
+.inp::placeholder{color:#a1a1aa}
+
+.btn-gps{
+  width:44px;height:44px;flex-shrink:0;border:1.5px solid var(--bdr);
+  border-radius:11px;background:white;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:var(--or);-webkit-appearance:none;
+}
+.btn-gps.active{background:var(--or-lt);border-color:var(--or)}
+.btn-gps svg{width:19px;height:19px}
+
+.btn-go{
+  width:100%;height:46px;background:var(--or);color:white;border:none;
+  border-radius:13px;font-size:16px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:2px;-webkit-appearance:none;
+}
+.btn-go:active{background:var(--or-dk)}
+.btn-go:disabled{opacity:.6;cursor:default}
+
+.drop{
+  position:absolute;left:19px;right:0;background:white;
+  border:1.5px solid var(--bdr);border-radius:13px;
+  box-shadow:var(--sh);z-index:3000;max-height:240px;overflow-y:auto;display:none;
+}
+.ac{
+  padding:11px 14px;cursor:pointer;
+  border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:9px;
+}
+.ac:last-child{border-bottom:none}
+.ac:active{background:#fef3e8}
+.ac-ico{color:var(--txt2);font-size:14px;flex-shrink:0;margin-top:2px}
+.ac-main{font-weight:500;color:var(--txt);font-size:13px;margin-bottom:1px}
+.ac-sub{font-size:11px;color:var(--txt2)}
+
+#rpanel{
+  position:fixed;bottom:max(env(safe-area-inset-bottom),16px);
+  left:12px;right:12px;
+  background:white;border-radius:20px;padding:18px 20px 16px;
+  box-shadow:var(--sh);z-index:1000;display:none;
+}
+.rinfo{display:flex;margin-bottom:14px}
+.rs{flex:1}
+.rs-lbl{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.rs-val{font-size:30px;font-weight:800;color:var(--txt);letter-spacing:-.5px;line-height:1}
+.rs-unit{font-size:14px;font-weight:400;color:var(--txt2);margin-left:1px}
+.divider{width:1px;background:var(--bdr);margin:0 16px}
+.rt-badge{display:inline-flex;align-items:center;gap:5px;background:var(--or-lt);color:var(--or);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:13px}
+.btn-clear{width:100%;height:42px;background:var(--surf);color:var(--txt2);border:1.5px solid var(--bdr);border-radius:11px;font-size:14px;font-weight:500;cursor:pointer;-webkit-appearance:none}
+
+.spin{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:sp .6s linear infinite;display:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading .spin{display:block}
+.loading .lbl{display:none}
+
+#toast{
+  position:fixed;bottom:130px;left:50%;transform:translateX(-50%);
+  background:#18181b;color:white;padding:9px 18px;border-radius:24px;
+  font-size:13px;z-index:5000;display:none;white-space:nowrap;pointer-events:none;
+  box-shadow:0 2px 12px rgba(0,0,0,.25);max-width:calc(100vw - 32px);text-align:center;white-space:normal;
+}
+
+.leaflet-bottom.leaflet-right{bottom:130px;right:12px}
+.leaflet-control-zoom{border:none!important;box-shadow:var(--sh)!important}
+.leaflet-control-zoom a{border-radius:10px!important;border:none!important;font-size:18px!important;width:36px!important;height:36px!important;line-height:36px!important;color:var(--txt)!important;background:white!important}
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="panel">
+  <div class="hd">
+    <span style="font-size:20px">🛵</span>
+    <span class="logo">Scooter<em>Route</em></span>
+    <span class="badge">Geen 80km/h wegen</span>
+  </div>
+  <div class="fields">
+    <div class="row">
+      <div class="dot d-from"></div>
+      <input class="inp" id="inp-van" type="text" placeholder="Vertrekpunt of straat" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button class="btn-gps" id="btn-gps" onclick="gpsLoc()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <line x1="12" y1="2" x2="12" y2="5.5"/><line x1="12" y1="18.5" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="5.5" y2="12"/><line x1="18.5" y1="12" x2="22" y2="12"/>
+        </svg>
+      </button>
+    </div>
+    <div id="drop-van" class="drop" style="top:48px"></div>
+    <div class="line"></div>
+    <div class="row">
+      <div class="dot d-to"></div>
+      <input class="inp" id="inp-naar" type="text" placeholder="Bestemming" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1">
+    </div>
+    <div id="drop-naar" class="drop" style="top:calc(100% - 44px)"></div>
+  </div>
+  <button class="btn-go" id="btn-go" onclick="berekenRoute()">
+    <span class="lbl">Route berekenen</span>
+    <div class="spin"></div>
+  </button>
+</div>
+
+<div id="rpanel">
+  <div class="rt-badge">🛵 Scooterroute — vermijdt 80km/h wegen</div>
+  <div class="rinfo">
+    <div class="rs">
+      <div class="rs-lbl">Afstand</div>
+      <div class="rs-val" id="s-km">—<span class="rs-unit"> km</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="rs">
+      <div class="rs-lbl">Reistijd</div>
+      <div class="rs-val" id="s-tijd">—<span class="rs-unit"> min</span></div>
+    </div>
+  </div>
+  <button class="btn-clear" onclick="wis()">✕  Nieuwe route</button>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// PWA manifest
+const mfst={name:"ScooterRoute NL",short_name:"ScooterRoute",display:"standalone",background_color:"#ffffff",theme_color:"#f97316",start_url:"./",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%B5%3C/text%3E%3C/svg%3E",sizes:"any",type:"image/svg+xml"}]};
+document.getElementById('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(mfst)],{type:'application/manifest+json'}));
+
+// Kaart
+const map=L.map('map',{zoomControl:false}).setView([52.3,5.3],8);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+L.control.zoom({position:'bottomright'}).addTo(map);
+
+let vanCoord=null,naarCoord=null;
+let laag1=null,laag2=null,mVan=null,mNaar=null,mGPS=null;
+let dbVan=null,dbNaar=null;
+
+// ── Geocoding ─────────────────────────────────────────────────────────────────
+// Nominatim met viewbox over Nederland voor betere resultaten
+const NL_BOX='3.2,50.7,7.3,53.6'; // west,south,east,north
+
+async function geocode(q){
+  // Voeg "Nederland" toe als er geen stad/land in zit, voor betere resultaten
+  const query=q.toLowerCase().includes('nederland')||q.toLowerCase().includes('nl')?q:q+', Nederland';
+  const url=`https://nominatim.openstreetmap.org/search`
+    +`?format=json`
+    +`&q=${encodeURIComponent(query)}`
+    +`&countrycodes=nl`
+    +`&viewbox=${NL_BOX}`
+    +`&bounded=0`
+    +`&limit=6`
+    +`&addressdetails=1`
+    +`&accept-language=nl`;
+  const r=await fetch(url,{headers:{'Accept-Language':'nl','User-Agent':'ScooterRouteNL/1.0'}});
+  if(!r.ok)throw new Error('geocode fout');
+  return r.json();
+}
+
+function fmt(r){
+  const a=r.address||{};
+  const straat=[a.road,a.house_number].filter(Boolean).join(' ');
+  const hoofd=straat||a.amenity||a.leisure||a.shop||a.tourism||a.suburb||a.city||a.town||r.display_name.split(',')[0];
+  const stad=a.city||a.town||a.village||a.municipality||'';
+  const sub=[stad,a.state].filter(s=>s&&s!==stad).join(', ');
+  return{hoofd:hoofd.trim(),sub:sub||stad,lat:+r.lat,lon:+r.lon,display:r.display_name};
+}
+
+// ── Dropdown ──────────────────────────────────────────────────────────────────
+function maakDrop(items,inp,drop,setCoord){
+  drop.innerHTML='';
+  if(!items.length){drop.style.display='none';return;}
+  items.forEach(it=>{
+    const d=document.createElement('div');
+    d.className='ac';
+    d.innerHTML=`<span class="ac-ico">📍</span><div><div class="ac-main">${escHtml(it.hoofd)}</div><div class="ac-sub">${escHtml(it.sub)}</div></div>`;
+    d.addEventListener('pointerdown',e=>{
+      e.preventDefault();
+      const label=it.hoofd+(it.sub?', '+it.sub:'');
+      inp.value=label;
+      setCoord([it.lat,it.lon]);
+      inp.classList.add('resolved');
+      drop.style.display='none';
+    });
+    drop.appendChild(d);
+  });
+  drop.style.display='block';
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── Autocomplete koppelen ─────────────────────────────────────────────────────
+function koppelAC(inpId,dropId,setCoord){
+  const inp=document.getElementById(inpId);
+  const drop=document.getElementById(dropId);
+
+  inp.addEventListener('input',function(){
+    const v=this.value.trim();
+    // Als gebruiker typt, reset de coördinaat — opnieuw zoeken nodig
+    setCoord(null);
+    inp.classList.remove('resolved');
+    if(v.length<2){drop.style.display='none';return;}
+    const isVan=(inpId==='inp-van');
+    clearTimeout(isVan?dbVan:dbNaar);
+    const db=setTimeout(async()=>{
+      try{
+        const res=await geocode(v);
+        maakDrop(res.map(fmt),inp,drop,setCoord);
+      }catch{drop.style.display='none';}
+    },350);
+    if(isVan)dbVan=db; else dbNaar=db;
+  });
+
+  // Enter: pak eerste resultaat
+  inp.addEventListener('keydown',async function(e){
+    if(e.key==='Enter'){
+      e.preventDefault();
+      const eerste=drop.querySelector('.ac');
+      if(eerste){eerste.dispatchEvent(new Event('pointerdown'));return;}
+      // Geen dropdown open: zoek direct
+      await resolveInput(inp,drop,setCoord);
+    }
+  });
+
+  document.addEventListener('click',e=>{
+    if(!inp.contains(e.target)&&!drop.contains(e.target))drop.style.display='none';
+  });
+}
+
+// Los een getypt adres op zonder dropdown te gebruiken (bijv. bij direct op knop drukken)
+async function resolveInput(inp,drop,setCoord){
+  const v=inp.value.trim();
+  if(!v)return false;
+  try{
+    const res=await geocode(v);
+    if(!res.length)return false;
+    const it=fmt(res[0]);
+    inp.value=it.hoofd+(it.sub?', '+it.sub:'');
+    setCoord([it.lat,it.lon]);
+    inp.classList.add('resolved');
+    drop.style.display='none';
+    return true;
+  }catch{return false;}
+}
+
+let _vanCoord_setter=c=>vanCoord=c;
+let _naarCoord_setter=c=>naarCoord=c;
+
+koppelAC('inp-van','drop-van',c=>vanCoord=c);
+koppelAC('inp-naar','drop-naar',c=>naarCoord=c);
+
+// ── GPS ───────────────────────────────────────────────────────────────────────
+function gpsLoc(){
+  if(!navigator.geolocation){toast('GPS niet beschikbaar op dit apparaat');return;}
+  const btn=document.getElementById('btn-gps');
+  btn.style.opacity='.4';
+  toast('Locatie ophalen…',5000);
+  navigator.geolocation.getCurrentPosition(async p=>{
+    const{latitude:lat,longitude:lon}=p.coords;
+    vanCoord=[lat,lon];
+    btn.classList.add('active');btn.style.opacity='';
+    const inp=document.getElementById('inp-van');
+    try{
+      const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=nl`,{headers:{'User-Agent':'ScooterRouteNL/1.0'}});
+      const d=await r.json();
+      const a=d.address||{};
+      const straat=[a.road,a.house_number].filter(Boolean).join(' ');
+      const stad=a.city||a.town||a.village||'';
+      inp.value=[straat,stad].filter(Boolean).join(', ')||'Huidige locatie';
+    }catch{inp.value='Huidige locatie';}
+    inp.classList.add('resolved');
+    if(mGPS)map.removeLayer(mGPS);
+    mGPS=L.circleMarker([lat,lon],{radius:7,fillColor:'#3b82f6',color:'white',weight:2.5,fillOpacity:1}).addTo(map);
+    map.setView([lat,lon],14);
+    toast('Locatie gevonden ✓');
+  },err=>{
+    btn.style.opacity='';
+    const msg=err.code===1?'Locatietoegang geweigerd — zet GPS aan in instellingen':'Kan locatie niet ophalen';
+    toast(msg);
+  },{enableHighAccuracy:true,timeout:10000});
+}
+
+// ── Route berekenen ───────────────────────────────────────────────────────────
+async function berekenRoute(){
+  const btn=document.getElementById('btn-go');
+  btn.classList.add('loading');btn.disabled=true;
+
+  // Auto-resolve als gebruiker heeft getypt maar geen suggestie heeft geselecteerd
+  const inpVan=document.getElementById('inp-van');
+  const inpNaar=document.getElementById('inp-naar');
+
+  if(!vanCoord&&inpVan.value.trim()){
+    toast('Vertrekpunt zoeken…',3000);
+    const ok=await resolveInput(inpVan,document.getElementById('drop-van'),c=>vanCoord=c);
+    if(!ok){toast('Vertrekpunt niet gevonden — typ iets specifieker');btn.classList.remove('loading');btn.disabled=false;return;}
+  }
+  if(!naarCoord&&inpNaar.value.trim()){
+    toast('Bestemming zoeken…',3000);
+    const ok=await resolveInput(inpNaar,document.getElementById('drop-naar'),c=>naarCoord=c);
+    if(!ok){toast('Bestemming niet gevonden — typ iets specifieker');btn.classList.remove('loading');btn.disabled=false;return;}
+  }
+
+  if(!vanCoord){toast('Vul een vertrekpunt in');btn.classList.remove('loading');btn.disabled=false;return;}
+  if(!naarCoord){toast('Vul een bestemming in');btn.classList.remove('loading');btn.disabled=false;return;}
+
+  try{
+    const body={
+      locations:[
+        {lon:vanCoord[1],lat:vanCoord[0]},
+        {lon:naarCoord[1],lat:naarCoord[0]}
+      ],
+      costing:'motor_scooter',
+      costing_options:{motor_scooter:{top_speed:45,use_highways:0,use_tolls:0}},
+      directions_options:{language:'nl',units:'kilometers'}
+    };
+
+    const res=await fetch('https://valhalla1.openstreetmap.de/route',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    });
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(!data.trip)throw new Error('geen route');
+
+    const coords=decodePoly(data.trip.legs[0].shape,6);
+
+    if(laag1)map.removeLayer(laag1);if(laag2)map.removeLayer(laag2);
+    if(mVan)map.removeLayer(mVan);if(mNaar)map.removeLayer(mNaar);
+
+    laag1=L.polyline(coords,{color:'#000',weight:10,opacity:.07,lineJoin:'round',lineCap:'round'}).addTo(map);
+    laag2=L.polyline(coords,{color:'#f97316',weight:5.5,opacity:.9,lineJoin:'round',lineCap:'round'}).addTo(map);
+    mVan=L.marker(vanCoord,{icon:mkIco(false)}).addTo(map);
+    mNaar=L.marker(naarCoord,{icon:mkIco(true)}).addTo(map);
+    map.fitBounds(laag2.getBounds(),{padding:[90,24],maxZoom:16});
+
+    const km=data.trip.summary.length.toFixed(1);
+    const mins=Math.round(data.trip.summary.time/60);
+    const h=Math.floor(mins/60),m=mins%60;
+    document.getElementById('s-km').innerHTML=`${km}<span class="rs-unit"> km</span>`;
+    document.getElementById('s-tijd').innerHTML=h>0
+      ?`${h}<span class="rs-unit">u </span>${m}<span class="rs-unit"> min</span>`
+      :`${mins}<span class="rs-unit"> min</span>`;
+    document.getElementById('rpanel').style.display='block';
+
+  }catch(e){
+    toast('Kon route niet berekenen — probeer opnieuw');
+    console.error(e);
+  }finally{
+    btn.classList.remove('loading');btn.disabled=false;
+  }
+}
+
+function mkIco(end){
+  const s=end?18:14;
+  const inner=end?`<div style="width:6px;height:6px;border-radius:50%;background:white;position:absolute;inset:0;margin:auto"></div>`:'';
+  return L.divIcon({html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:#f97316;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.25);position:relative">${inner}</div>`,iconSize:[s,s],iconAnchor:[s/2,s/2],className:''});
+}
+
+// Valhalla encoded polyline decoder (precision 6)
+function decodePoly(str,prec=6){
+  let i=0,lat=0,lng=0;
+  const pts=[],f=Math.pow(10,prec);
+  while(i<str.length){
+    let b,s=0,r=0;
+    do{b=str.charCodeAt(i++)-63;r|=(b&31)<<s;s+=5;}while(b>=32);
+    lat+=(r&1)?~(r>>1):(r>>1);
+    s=0;r=0;
+    do{b=str.charCodeAt(i++)-63;r|=(b&31)<<s;s+=5;}while(b>=32);
+    lng+=(r&1)?~(r>>1):(r>>1);
+    pts.push([lat/f,lng/f]);
+  }
+  return pts;
+}
+
+function wis(){
+  [laag1,laag2,mVan,mNaar].forEach(l=>{if(l)map.removeLayer(l);});
+  laag1=laag2=mVan=mNaar=null;
+  vanCoord=naarCoord=null;
+  ['inp-van','inp-naar'].forEach(id=>{
+    const inp=document.getElementById(id);
+    inp.value='';inp.classList.remove('resolved');
+  });
+  document.getElementById('rpanel').style.display='none';
+  document.getElementById('btn-gps').classList.remove('active');
+}
+
+let tt;
+function toast(msg,dur=2600){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.style.display='block';
+  clearTimeout(tt);tt=setTimeout(()=>el.style.display='none',dur);
+}
+
+// Automatisch centreren op locatie
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(p=>{map.setView([p.coords.latitude,p.coords.longitude],13);},()=>{});
+}
+
+// Service worker — cache kaartpannen offline
+if('serviceWorker' in navigator){
+  const sw=`self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',()=>clients.claim());self.addEventListener('fetch',e=>{if(e.request.url.includes('tile.openstreetmap.org')){e.respondWith(caches.open('tiles-v1').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;}))));}});`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
+}
+</script>
+</body>
+</html>
