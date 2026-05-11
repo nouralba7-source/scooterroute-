@@ -30,7 +30,9 @@ html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;over
 .hd{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .logo{font-size:17px;font-weight:800;color:var(--txt);letter-spacing:-.4px}
 .logo em{color:var(--or);font-style:normal}
-.badge{margin-left:auto;font-size:11px;font-weight:600;background:var(--or-lt);color:var(--or);padding:3px 8px;border-radius:20px}
+.type-toggle{margin-left:auto;display:flex;background:var(--surf);border-radius:20px;padding:2px;gap:2px}
+.tt-btn{border:none;background:transparent;font-size:11px;font-weight:600;color:var(--txt2);padding:4px 9px;border-radius:16px;cursor:pointer;-webkit-appearance:none;white-space:nowrap}
+.tt-btn.active{background:var(--or);color:white}
 
 .fields{position:relative}
 .row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
@@ -120,7 +122,7 @@ html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;over
   <div class="hd">
     <span style="font-size:20px">🛵</span>
     <span class="logo">Scooter<em>Route</em></span>
-    <span class="badge">Geen 80km/h wegen</span>
+    <div class="type-toggle"><button class="tt-btn" id="tt-snor" onclick="setType('snor')">Snorfiets 25</button><button class="tt-btn active" id="tt-brom" onclick="setType('brom')">Bromfiets 45</button></div>
   </div>
   <div class="fields">
     <div class="row">
@@ -355,7 +357,13 @@ async function berekenRoute(){
         {lon:naarCoord[1],lat:naarCoord[0]}
       ],
       costing:'motor_scooter',
-      costing_options:{motor_scooter:{top_speed:45,use_highways:0,use_tolls:0}},
+      costing_options:{motor_scooter:{
+        top_speed:scooterType==='snor'?25:45,
+        use_highways:0.0,    // vermijd snelwegen (A-wegen)
+        use_primary:1.0,     // gebruik N-wegen en kanaalwegen wel
+        use_tolls:0,
+        shortest:false       // snelste route, niet kortste
+      }},
       directions_options:{language:'nl',units:'kilometers'}
     };
 
@@ -429,6 +437,12 @@ function wis(){
 }
 
 let tt;
+let scooterType='brom'; // 'snor' = 25km/h snorfiets, 'brom' = 45km/h bromfiets
+function setType(t){
+  scooterType=t;
+  document.getElementById('tt-snor').classList.toggle('active',t==='snor');
+  document.getElementById('tt-brom').classList.toggle('active',t==='brom');
+}
 function toast(msg,dur=2600){
   const el=document.getElementById('toast');
   el.textContent=msg;el.style.display='block';
