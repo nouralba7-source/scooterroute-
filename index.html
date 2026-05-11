@@ -16,11 +16,69 @@
   --or:#f97316;--or-dk:#ea6808;--or-lt:#fff7ed;
   --txt:#18181b;--txt2:#71717a;--bdr:#e4e4e7;
   --surf:#f4f4f5;--bg:#fff;
+  --green:#22c55e;--green-lt:#f0fdf4;
   --sh:0 4px 20px rgba(0,0,0,.10),0 1px 4px rgba(0,0,0,.06);
 }
 html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;overflow:hidden;background:#dde1e5}
 #map{position:fixed;inset:0;z-index:0}
 
+/* ── SETUP SCREEN ───────────────────────────────────────────── */
+#setup{
+  position:fixed;inset:0;z-index:9000;background:white;
+  display:flex;flex-direction:column;overflow-y:auto;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0);
+}
+.setup-inner{
+  max-width:420px;width:100%;margin:0 auto;
+  padding:40px 24px 40px;display:flex;flex-direction:column;min-height:100%;
+}
+.setup-logo{font-size:44px;margin-bottom:16px}
+.setup-title{font-size:26px;font-weight:700;color:var(--txt);letter-spacing:-.5px;margin-bottom:6px}
+.setup-sub{font-size:15px;color:var(--txt2);line-height:1.6;margin-bottom:32px}
+
+.steps{display:flex;flex-direction:column;gap:0;margin-bottom:28px}
+.step{display:flex;gap:14px;padding-bottom:24px;position:relative}
+.step:last-child{padding-bottom:0}
+.step:not(:last-child)::after{content:'';position:absolute;left:15px;top:34px;bottom:0;width:2px;background:var(--bdr)}
+.step-num{width:32px;height:32px;border-radius:50%;background:var(--or);color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1}
+.step-body{flex:1;padding-top:4px}
+.step-title{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:4px}
+.step-desc{font-size:13px;color:var(--txt2);line-height:1.5}
+.step-desc a{color:var(--or);text-decoration:none}
+.step-desc code{background:var(--surf);padding:1px 5px;border-radius:4px;font-size:12px;font-family:monospace}
+
+.key-field{margin-top:10px}
+.key-label{font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.key-wrap{display:flex;gap:8px}
+.key-inp{
+  flex:1;height:46px;border:1.5px solid var(--bdr);border-radius:11px;
+  padding:0 14px;font-size:14px;color:var(--txt);background:var(--surf);
+  outline:none;font-family:monospace;letter-spacing:.5px;
+}
+.key-inp:focus{border-color:var(--or);background:white}
+.key-inp.ok{border-color:var(--green);background:var(--green-lt)}
+.btn-check{
+  height:46px;padding:0 16px;background:var(--surf);border:1.5px solid var(--bdr);
+  border-radius:11px;font-size:13px;font-weight:600;color:var(--txt2);cursor:pointer;white-space:nowrap;
+}
+.key-status{font-size:12px;margin-top:6px;min-height:16px}
+.key-status.ok{color:var(--green)}
+.key-status.err{color:#ef4444}
+
+.referrer-tip{
+  background:var(--or-lt);border-radius:10px;padding:12px 14px;
+  font-size:12px;color:#92400e;line-height:1.6;margin-top:10px;
+}
+.referrer-tip strong{font-weight:600}
+
+.btn-start{
+  width:100%;height:50px;background:var(--or);color:white;border:none;
+  border-radius:13px;font-size:16px;font-weight:700;cursor:pointer;
+  margin-top:auto;padding-top:4px;-webkit-appearance:none;
+}
+.btn-start:disabled{opacity:.4;cursor:default}
+
+/* ── MAIN APP ───────────────────────────────────────────────── */
 #panel{
   position:fixed;top:0;left:0;right:0;z-index:1000;
   background:var(--bg);border-radius:0 0 22px 22px;box-shadow:var(--sh);
@@ -31,15 +89,15 @@ html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;over
 .logo{font-size:17px;font-weight:800;color:var(--txt);letter-spacing:-.4px}
 .logo em{color:var(--or);font-style:normal}
 .type-toggle{margin-left:auto;display:flex;background:var(--surf);border-radius:20px;padding:2px;gap:2px}
-.tt-btn{border:none;background:transparent;font-size:11px;font-weight:600;color:var(--txt2);padding:4px 9px;border-radius:16px;cursor:pointer;-webkit-appearance:none;white-space:nowrap}
-.tt-btn.active{background:var(--or);color:white}
+.tt{border:none;background:transparent;font-size:11px;font-weight:600;color:var(--txt2);padding:4px 9px;border-radius:16px;cursor:pointer;-webkit-appearance:none;white-space:nowrap}
+.tt.on{background:var(--or);color:white}
 
 .fields{position:relative}
 .row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
-.d-from{border:2.5px solid var(--or);background:white}
-.d-to{background:var(--or)}
-.line{width:2px;height:14px;background:var(--bdr);margin-left:4.5px;margin-bottom:6px}
+.d-van{border:2.5px solid var(--or);background:white}
+.d-naar{background:var(--or)}
+.connector{width:2px;height:14px;background:var(--bdr);margin-left:4.5px;margin-bottom:6px}
 
 .inp{
   flex:1;height:44px;border:1.5px solid var(--bdr);border-radius:11px;
@@ -47,7 +105,7 @@ html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;over
   outline:none;transition:border-color .15s,background .15s;-webkit-appearance:none;
 }
 .inp:focus{border-color:var(--or);background:white}
-.inp.resolved{border-color:#22c55e;background:#f0fdf4}
+.inp.ok{border-color:var(--green);background:var(--green-lt)}
 .inp::placeholder{color:#a1a1aa}
 
 .btn-gps{
@@ -55,7 +113,7 @@ html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;over
   border-radius:11px;background:white;display:flex;align-items:center;
   justify-content:center;cursor:pointer;color:var(--or);-webkit-appearance:none;
 }
-.btn-gps.active{background:var(--or-lt);border-color:var(--or)}
+.btn-gps.on{background:var(--or-lt);border-color:var(--or)}
 .btn-gps svg{width:19px;height:19px}
 
 .btn-go{
@@ -65,50 +123,58 @@ html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;over
   margin-top:2px;-webkit-appearance:none;
 }
 .btn-go:active{background:var(--or-dk)}
-.btn-go:disabled{opacity:.6;cursor:default}
+.btn-go:disabled{opacity:.5;cursor:default}
 
+/* ── AUTOCOMPLETE ─────────────────────────────────────────── */
 .drop{
   position:absolute;left:19px;right:0;background:white;
   border:1.5px solid var(--bdr);border-radius:13px;
   box-shadow:var(--sh);z-index:3000;max-height:240px;overflow-y:auto;display:none;
 }
-.ac{
-  padding:11px 14px;cursor:pointer;
-  border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:9px;
-}
+.ac{padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:9px}
 .ac:last-child{border-bottom:none}
 .ac:active{background:#fef3e8}
-.ac-ico{color:var(--txt2);font-size:14px;flex-shrink:0;margin-top:2px}
+.ac-pin{color:var(--txt2);font-size:14px;flex-shrink:0;margin-top:2px}
 .ac-main{font-weight:500;color:var(--txt);font-size:13px;margin-bottom:1px}
 .ac-sub{font-size:11px;color:var(--txt2)}
 
+/* ── ROUTE PANEL ──────────────────────────────────────────── */
 #rpanel{
   position:fixed;bottom:max(env(safe-area-inset-bottom),16px);
   left:12px;right:12px;
   background:white;border-radius:20px;padding:18px 20px 16px;
   box-shadow:var(--sh);z-index:1000;display:none;
 }
-.rinfo{display:flex;margin-bottom:14px}
-.rs{flex:1}
-.rs-lbl{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
-.rs-val{font-size:30px;font-weight:800;color:var(--txt);letter-spacing:-.5px;line-height:1}
-.rs-unit{font-size:14px;font-weight:400;color:var(--txt2);margin-left:1px}
-.divider{width:1px;background:var(--bdr);margin:0 16px}
-.rt-badge{display:inline-flex;align-items:center;gap:5px;background:var(--or-lt);color:var(--or);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:13px}
-.btn-clear{width:100%;height:42px;background:var(--surf);color:var(--txt2);border:1.5px solid var(--bdr);border-radius:11px;font-size:14px;font-weight:500;cursor:pointer;-webkit-appearance:none}
+.rt-badge{display:inline-flex;align-items:center;gap:5px;background:var(--or-lt);color:var(--or);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:12px}
+.stats{display:flex;margin-bottom:14px}
+.stat{flex:1}
+.stat-lbl{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.stat-val{font-size:30px;font-weight:800;color:var(--txt);letter-spacing:-.5px;line-height:1}
+.stat-unit{font-size:14px;font-weight:400;color:var(--txt2);margin-left:1px}
+.stat-div{width:1px;background:var(--bdr);margin:0 16px}
+.btn-wis{width:100%;height:42px;background:var(--surf);color:var(--txt2);border:1.5px solid var(--bdr);border-radius:11px;font-size:14px;font-weight:500;cursor:pointer;-webkit-appearance:none}
 
+/* ── SPINNER ──────────────────────────────────────────────── */
 .spin{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:sp .6s linear infinite;display:none}
 @keyframes sp{to{transform:rotate(360deg)}}
-.loading .spin{display:block}
-.loading .lbl{display:none}
+.loading .spin{display:block}.loading .lbl{display:none}
 
+/* ── TOAST ────────────────────────────────────────────────── */
 #toast{
   position:fixed;bottom:130px;left:50%;transform:translateX(-50%);
   background:#18181b;color:white;padding:9px 18px;border-radius:24px;
-  font-size:13px;z-index:5000;display:none;white-space:nowrap;pointer-events:none;
-  box-shadow:0 2px 12px rgba(0,0,0,.25);max-width:calc(100vw - 32px);text-align:center;white-space:normal;
+  font-size:13px;z-index:5000;display:none;pointer-events:none;
+  box-shadow:0 2px 12px rgba(0,0,0,.25);max-width:calc(100vw - 32px);text-align:center;
 }
 
+/* ── SETTINGS BTN ─────────────────────────────────────────── */
+.btn-settings{
+  width:30px;height:30px;border:1.5px solid var(--bdr);border-radius:8px;
+  background:white;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--txt2);font-size:14px;margin-left:4px;
+}
+
+/* ── ZOOM ─────────────────────────────────────────────────── */
 .leaflet-bottom.leaflet-right{bottom:130px;right:12px}
 .leaflet-control-zoom{border:none!important;box-shadow:var(--sh)!important}
 .leaflet-control-zoom a{border-radius:10px!important;border:none!important;font-size:18px!important;width:36px!important;height:36px!important;line-height:36px!important;color:var(--txt)!important;background:white!important}
@@ -116,18 +182,72 @@ html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;over
 </head>
 <body>
 
+<!-- ── SETUP SCREEN ──────────────────────────────────────────── -->
+<div id="setup">
+<div class="setup-inner">
+  <div class="setup-logo">🛵</div>
+  <div class="setup-title">ScooterRoute NL</div>
+  <p class="setup-sub">Navigeer via bromfietspaden en 50/60 km/h wegen. Eenmalige setup — daarna gewoon gebruiken.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Maak een gratis GraphHopper account</div>
+        <div class="step-desc">Ga naar <a href="https://www.graphhopper.com/dashboard/#/register" target="_blank">graphhopper.com/dashboard</a> en registreer. Gratis tier geeft 500 routes per dag.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Kopieer je API key</div>
+        <div class="step-desc">Na inloggen zie je jouw API key bovenaan het dashboard. Kopieer hem en plak hieronder.</div>
+        <div class="key-field">
+          <div class="key-label">API Key</div>
+          <div class="key-wrap">
+            <input class="key-inp" type="text" id="key-inp" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" autocorrect="off" spellcheck="false">
+            <button class="btn-check" onclick="testKey()">Testen</button>
+          </div>
+          <div class="key-status" id="key-status"></div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Beveilig je key (optioneel maar slim)</div>
+        <div class="step-desc">
+          In het GraphHopper dashboard → API keys → edit → voeg bij <strong>Allowed referrers</strong> je GitHub Pages URL toe, bijv. <code>https://jouwusernaam.github.io/*</code>. Dan werkt de key alleen op jouw site.
+        </div>
+        <div class="referrer-tip">
+          <strong>Waarom?</strong> Je API key staat in de broncode van de app. Met een referrer-restrictie kan niemand hem misbruiken — requests van andere sites worden automatisch geweigerd.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-start" id="btn-start" onclick="startApp()" disabled>Aan de slag →</button>
+</div>
+</div>
+
+<!-- ── KAART ──────────────────────────────────────────────────── -->
 <div id="map"></div>
 
-<div id="panel">
+<!-- ── ZOEKPANEEL ────────────────────────────────────────────── -->
+<div id="panel" style="display:none">
   <div class="hd">
     <span style="font-size:20px">🛵</span>
     <span class="logo">Scooter<em>Route</em></span>
-    <div class="type-toggle"><button class="tt-btn" id="tt-snor" onclick="setType('snor')">Snorfiets 25</button><button class="tt-btn active" id="tt-brom" onclick="setType('brom')">Bromfiets 45</button></div>
+    <div class="type-toggle">
+      <button class="tt" id="tt-snor" onclick="setType('snor')">Snorfiets</button>
+      <button class="tt on" id="tt-brom" onclick="setType('brom')">Bromfiets</button>
+    </div>
+    <button class="btn-settings" onclick="openSetup()" title="Instellingen">⚙</button>
   </div>
   <div class="fields">
     <div class="row">
-      <div class="dot d-from"></div>
-      <input class="inp" id="inp-van" type="text" placeholder="Vertrekpunt of straat" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <div class="dot d-van"></div>
+      <input class="inp" id="inp-van" type="text" placeholder="Vertrekpunt" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       <button class="btn-gps" id="btn-gps" onclick="gpsLoc()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
@@ -137,9 +257,9 @@ html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;over
       </button>
     </div>
     <div id="drop-van" class="drop" style="top:48px"></div>
-    <div class="line"></div>
+    <div class="connector"></div>
     <div class="row">
-      <div class="dot d-to"></div>
+      <div class="dot d-naar"></div>
       <input class="inp" id="inp-naar" type="text" placeholder="Bestemming" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1">
     </div>
     <div id="drop-naar" class="drop" style="top:calc(100% - 44px)"></div>
@@ -150,83 +270,134 @@ html,body{height:100%;font-family:-apple-system,'Helvetica Neue',sans-serif;over
   </button>
 </div>
 
+<!-- ── ROUTE INFO ─────────────────────────────────────────────── -->
 <div id="rpanel">
-  <div class="rt-badge">🛵 Scooterroute — vermijdt 80km/h wegen</div>
-  <div class="rinfo">
-    <div class="rs">
-      <div class="rs-lbl">Afstand</div>
-      <div class="rs-val" id="s-km">—<span class="rs-unit"> km</span></div>
+  <div class="rt-badge" id="rt-badge">🛵 Bromfietsroute</div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-lbl">Afstand</div>
+      <div class="stat-val" id="s-km">—<span class="stat-unit"> km</span></div>
     </div>
-    <div class="divider"></div>
-    <div class="rs">
-      <div class="rs-lbl">Reistijd</div>
-      <div class="rs-val" id="s-tijd">—<span class="rs-unit"> min</span></div>
+    <div class="stat-div"></div>
+    <div class="stat">
+      <div class="stat-lbl">Reistijd</div>
+      <div class="stat-val" id="s-tijd">—<span class="stat-unit"> min</span></div>
     </div>
   </div>
-  <button class="btn-clear" onclick="wis()">✕  Nieuwe route</button>
+  <button class="btn-wis" onclick="wis()">✕  Nieuwe route</button>
 </div>
 
 <div id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-// PWA manifest
+// ── PWA manifest ──────────────────────────────────────────────────────────────
 const mfst={name:"ScooterRoute NL",short_name:"ScooterRoute",display:"standalone",background_color:"#ffffff",theme_color:"#f97316",start_url:"./",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%B5%3C/text%3E%3C/svg%3E",sizes:"any",type:"image/svg+xml"}]};
 document.getElementById('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(mfst)],{type:'application/manifest+json'}));
 
-// Kaart
-const map=L.map('map',{zoomControl:false}).setView([52.3,5.3],8);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
-L.control.zoom({position:'bottomright'}).addTo(map);
-
-let vanCoord=null,naarCoord=null;
+// ── State ─────────────────────────────────────────────────────────────────────
+let map=null,vanCoord=null,naarCoord=null;
 let laag1=null,laag2=null,mVan=null,mNaar=null,mGPS=null;
 let dbVan=null,dbNaar=null;
+let scooterType='brom';
+const NL_BOX='3.2,50.7,7.3,53.6';
 
-// ── Geocoding ─────────────────────────────────────────────────────────────────
-// Nominatim met viewbox over Nederland voor betere resultaten
-const NL_BOX='3.2,50.7,7.3,53.6'; // west,south,east,north
+// ── API key ───────────────────────────────────────────────────────────────────
+function getKey(){return localStorage.getItem('gh_key')||'';}
 
+async function testKey(){
+  const k=document.getElementById('key-inp').value.trim();
+  if(!k){setKeyStatus('Vul een key in','err');return;}
+  setKeyStatus('Controleren…','');
+  try{
+    // Kleine test-request: geocode Utrecht
+    const r=await fetch(`https://graphhopper.com/api/1/geocode?q=Utrecht&locale=nl&key=${k}`);
+    const d=await r.json();
+    if(r.status===401||d.message?.includes('key')){setKeyStatus('Key niet geldig','err');return;}
+    if(r.ok){
+      setKeyStatus('Key werkt ✓','ok');
+      document.getElementById('key-inp').classList.add('ok');
+      document.getElementById('btn-start').disabled=false;
+      localStorage.setItem('gh_key',k);
+    }else{setKeyStatus('Onverwachte fout: '+r.status,'err');}
+  }catch{setKeyStatus('Geen verbinding','err');}
+}
+
+function setKeyStatus(msg,type){
+  const el=document.getElementById('key-status');
+  el.textContent=msg;el.className='key-status '+(type||'');
+}
+
+// Vul bestaande key in als aanwezig
+window.addEventListener('load',()=>{
+  const k=getKey();
+  if(k){
+    document.getElementById('key-inp').value=k;
+    document.getElementById('key-inp').classList.add('ok');
+    document.getElementById('btn-start').disabled=false;
+    setKeyStatus('Key opgeslagen ✓','ok');
+  }
+});
+
+function startApp(){
+  const k=document.getElementById('key-inp').value.trim();
+  if(!k){setKeyStatus('Vul een key in','err');return;}
+  localStorage.setItem('gh_key',k);
+  document.getElementById('setup').style.display='none';
+  document.getElementById('panel').style.display='block';
+  if(!map)initKaart();
+}
+
+function openSetup(){
+  document.getElementById('setup').style.display='flex';
+}
+
+// ── Kaart ─────────────────────────────────────────────────────────────────────
+function initKaart(){
+  map=L.map('map',{zoomControl:false}).setView([52.1,5.3],9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+  L.control.zoom({position:'bottomright'}).addTo(map);
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(p=>{map.setView([p.coords.latitude,p.coords.longitude],13);},()=>{});
+  }
+}
+
+// ── Scooter type ──────────────────────────────────────────────────────────────
+function setType(t){
+  scooterType=t;
+  document.getElementById('tt-snor').classList.toggle('on',t==='snor');
+  document.getElementById('tt-brom').classList.toggle('on',t==='brom');
+}
+
+// ── Geocoding via GraphHopper (zelfde key, betere NL-resultaten dan Nominatim) ─
 async function geocode(q){
-  // Voeg "Nederland" toe als er geen stad/land in zit, voor betere resultaten
-  const query=q.toLowerCase().includes('nederland')||q.toLowerCase().includes('nl')?q:q+', Nederland';
-  const url=`https://nominatim.openstreetmap.org/search`
-    +`?format=json`
-    +`&q=${encodeURIComponent(query)}`
-    +`&countrycodes=nl`
-    +`&viewbox=${NL_BOX}`
-    +`&bounded=0`
-    +`&limit=6`
-    +`&addressdetails=1`
-    +`&accept-language=nl`;
-  const r=await fetch(url,{headers:{'Accept-Language':'nl','User-Agent':'ScooterRouteNL/1.0'}});
+  const k=getKey();
+  const r=await fetch(`https://graphhopper.com/api/1/geocode?q=${encodeURIComponent(q)}&locale=nl&limit=6&key=${k}`);
   if(!r.ok)throw new Error('geocode fout');
-  return r.json();
+  const d=await r.json();
+  return d.hits||[];
 }
 
-function fmt(r){
-  const a=r.address||{};
-  const straat=[a.road,a.house_number].filter(Boolean).join(' ');
-  const hoofd=straat||a.amenity||a.leisure||a.shop||a.tourism||a.suburb||a.city||a.town||r.display_name.split(',')[0];
-  const stad=a.city||a.town||a.village||a.municipality||'';
-  const sub=[stad,a.state].filter(s=>s&&s!==stad).join(', ');
-  return{hoofd:hoofd.trim(),sub:sub||stad,lat:+r.lat,lon:+r.lon,display:r.display_name};
+function fmtHit(h){
+  const naam=h.name||'';
+  const stad=h.city||h.state||'';
+  const land=h.country||'';
+  const sub=[stad,land==='Netherlands'?'':land].filter(Boolean).join(', ');
+  return{hoofd:naam,sub,lat:h.point.lat,lon:h.point.lng};
 }
 
-// ── Dropdown ──────────────────────────────────────────────────────────────────
-function maakDrop(items,inp,drop,setCoord){
+function maakDrop(items,inp,drop,setter){
   drop.innerHTML='';
   if(!items.length){drop.style.display='none';return;}
   items.forEach(it=>{
     const d=document.createElement('div');
     d.className='ac';
-    d.innerHTML=`<span class="ac-ico">📍</span><div><div class="ac-main">${escHtml(it.hoofd)}</div><div class="ac-sub">${escHtml(it.sub)}</div></div>`;
+    d.innerHTML=`<span class="ac-pin">📍</span><div><div class="ac-main">${esc(it.hoofd)}</div><div class="ac-sub">${esc(it.sub)}</div></div>`;
     d.addEventListener('pointerdown',e=>{
       e.preventDefault();
-      const label=it.hoofd+(it.sub?', '+it.sub:'');
-      inp.value=label;
-      setCoord([it.lat,it.lon]);
-      inp.classList.add('resolved');
+      inp.value=[it.hoofd,it.sub].filter(Boolean).join(', ');
+      setter([it.lat,it.lon]);
+      inp.classList.add('ok');
       drop.style.display='none';
     });
     drop.appendChild(d);
@@ -234,97 +405,123 @@ function maakDrop(items,inp,drop,setCoord){
   drop.style.display='block';
 }
 
-function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 
-// ── Autocomplete koppelen ─────────────────────────────────────────────────────
-function koppelAC(inpId,dropId,setCoord){
+function koppelAC(inpId,dropId,setter){
   const inp=document.getElementById(inpId);
   const drop=document.getElementById(dropId);
-
   inp.addEventListener('input',function(){
     const v=this.value.trim();
-    // Als gebruiker typt, reset de coördinaat — opnieuw zoeken nodig
-    setCoord(null);
-    inp.classList.remove('resolved');
+    setter(null);inp.classList.remove('ok');
     if(v.length<2){drop.style.display='none';return;}
-    const isVan=(inpId==='inp-van');
+    const isVan=inpId==='inp-van';
     clearTimeout(isVan?dbVan:dbNaar);
     const db=setTimeout(async()=>{
-      try{
-        const res=await geocode(v);
-        maakDrop(res.map(fmt),inp,drop,setCoord);
-      }catch{drop.style.display='none';}
+      try{maakDrop((await geocode(v)).map(fmtHit),inp,drop,setter);}
+      catch{drop.style.display='none';}
     },350);
     if(isVan)dbVan=db; else dbNaar=db;
   });
-
-  // Enter: pak eerste resultaat
   inp.addEventListener('keydown',async function(e){
-    if(e.key==='Enter'){
-      e.preventDefault();
-      const eerste=drop.querySelector('.ac');
-      if(eerste){eerste.dispatchEvent(new Event('pointerdown'));return;}
-      // Geen dropdown open: zoek direct
-      await resolveInput(inp,drop,setCoord);
-    }
+    if(e.key!=='Enter')return;
+    e.preventDefault();
+    const eerste=drop.querySelector('.ac');
+    if(eerste){eerste.dispatchEvent(new Event('pointerdown'));return;}
+    await resolveInp(inp,drop,setter);
   });
-
   document.addEventListener('click',e=>{
     if(!inp.contains(e.target)&&!drop.contains(e.target))drop.style.display='none';
   });
 }
 
-// Los een getypt adres op zonder dropdown te gebruiken (bijv. bij direct op knop drukken)
-async function resolveInput(inp,drop,setCoord){
+async function resolveInp(inp,drop,setter){
   const v=inp.value.trim();
   if(!v)return false;
   try{
-    const res=await geocode(v);
-    if(!res.length)return false;
-    const it=fmt(res[0]);
-    inp.value=it.hoofd+(it.sub?', '+it.sub:'');
-    setCoord([it.lat,it.lon]);
-    inp.classList.add('resolved');
+    const hits=await geocode(v);
+    if(!hits.length)return false;
+    const it=fmtHit(hits[0]);
+    inp.value=[it.hoofd,it.sub].filter(Boolean).join(', ');
+    setter([it.lat,it.lon]);
+    inp.classList.add('ok');
     drop.style.display='none';
     return true;
   }catch{return false;}
 }
-
-let _vanCoord_setter=c=>vanCoord=c;
-let _naarCoord_setter=c=>naarCoord=c;
 
 koppelAC('inp-van','drop-van',c=>vanCoord=c);
 koppelAC('inp-naar','drop-naar',c=>naarCoord=c);
 
 // ── GPS ───────────────────────────────────────────────────────────────────────
 function gpsLoc(){
-  if(!navigator.geolocation){toast('GPS niet beschikbaar op dit apparaat');return;}
+  if(!navigator.geolocation){toast('GPS niet beschikbaar');return;}
   const btn=document.getElementById('btn-gps');
   btn.style.opacity='.4';
   toast('Locatie ophalen…',5000);
   navigator.geolocation.getCurrentPosition(async p=>{
     const{latitude:lat,longitude:lon}=p.coords;
     vanCoord=[lat,lon];
-    btn.classList.add('active');btn.style.opacity='';
+    btn.classList.add('on');btn.style.opacity='';
     const inp=document.getElementById('inp-van');
     try{
-      const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=nl`,{headers:{'User-Agent':'ScooterRouteNL/1.0'}});
+      const k=getKey();
+      const r=await fetch(`https://graphhopper.com/api/1/geocode?reverse=true&point=${lat},${lon}&locale=nl&key=${k}`);
       const d=await r.json();
-      const a=d.address||{};
-      const straat=[a.road,a.house_number].filter(Boolean).join(' ');
-      const stad=a.city||a.town||a.village||'';
-      inp.value=[straat,stad].filter(Boolean).join(', ')||'Huidige locatie';
+      const h=d.hits?.[0];
+      if(h){
+        const naam=h.name||'';
+        const stad=h.city||h.state||'';
+        inp.value=[naam,stad].filter(Boolean).join(', ');
+      }else{inp.value='Huidige locatie';}
     }catch{inp.value='Huidige locatie';}
-    inp.classList.add('resolved');
+    inp.classList.add('ok');
     if(mGPS)map.removeLayer(mGPS);
     mGPS=L.circleMarker([lat,lon],{radius:7,fillColor:'#3b82f6',color:'white',weight:2.5,fillOpacity:1}).addTo(map);
     map.setView([lat,lon],14);
     toast('Locatie gevonden ✓');
   },err=>{
     btn.style.opacity='';
-    const msg=err.code===1?'Locatietoegang geweigerd — zet GPS aan in instellingen':'Kan locatie niet ophalen';
-    toast(msg);
+    toast(err.code===1?'Locatietoegang geweigerd':'Kan locatie niet ophalen');
   },{enableHighAccuracy:true,timeout:10000});
+}
+
+// ── GraphHopper custom model ──────────────────────────────────────────────────
+// Bromfiets: max 45km/h, geen snelwegen, geen >80km/h wegen, wél bromfietspaden
+// Snorfiets: max 25km/h, fietsinfrastructuur voorkeur
+function customModel(type){
+  if(type==='brom'){
+    return{
+      speed:[
+        {if:'true',limit_to:45},
+        {if:'road_class == MOTORWAY',multiply_by:0},
+        {if:'road_class == TRUNK && max_speed > 80',multiply_by:0}
+      ],
+      priority:[
+        {if:'road_class == MOTORWAY',multiply_by:0},
+        {if:'max_speed > 80 && road_class != TRUNK',multiply_by:0},
+        // Voorkeuren: bromfietspaden en 50km/h wegen
+        {if:'road_class == RESIDENTIAL || road_class == TERTIARY',multiply_by:1.1},
+        {if:'max_speed <= 50 && road_class != MOTORWAY',multiply_by:1.2}
+      ],
+      distance_influence:35
+    };
+  }else{
+    // Snorfiets: langzamer, meer voorkeur voor lage-snelheidswegen
+    return{
+      speed:[
+        {if:'true',limit_to:25},
+        {if:'road_class == MOTORWAY',multiply_by:0},
+        {if:'max_speed > 50 && road_class != RESIDENTIAL',multiply_by:0.2}
+      ],
+      priority:[
+        {if:'road_class == MOTORWAY',multiply_by:0},
+        {if:'max_speed > 50',multiply_by:0.3},
+        {if:'road_class == RESIDENTIAL || road_class == TERTIARY',multiply_by:1.3},
+        {if:'max_speed <= 30',multiply_by:1.4}
+      ],
+      distance_influence:50
+    };
+  }
 }
 
 // ── Route berekenen ───────────────────────────────────────────────────────────
@@ -332,52 +529,54 @@ async function berekenRoute(){
   const btn=document.getElementById('btn-go');
   btn.classList.add('loading');btn.disabled=true;
 
-  // Auto-resolve als gebruiker heeft getypt maar geen suggestie heeft geselecteerd
   const inpVan=document.getElementById('inp-van');
   const inpNaar=document.getElementById('inp-naar');
 
+  // Auto-resolve als coördinaten nog niet gezet zijn
   if(!vanCoord&&inpVan.value.trim()){
-    toast('Vertrekpunt zoeken…',3000);
-    const ok=await resolveInput(inpVan,document.getElementById('drop-van'),c=>vanCoord=c);
-    if(!ok){toast('Vertrekpunt niet gevonden — typ iets specifieker');btn.classList.remove('loading');btn.disabled=false;return;}
+    toast('Vertrekpunt opzoeken…',3000);
+    const ok=await resolveInp(inpVan,document.getElementById('drop-van'),c=>vanCoord=c);
+    if(!ok){toast('Vertrekpunt niet gevonden');btn.classList.remove('loading');btn.disabled=false;return;}
   }
   if(!naarCoord&&inpNaar.value.trim()){
-    toast('Bestemming zoeken…',3000);
-    const ok=await resolveInput(inpNaar,document.getElementById('drop-naar'),c=>naarCoord=c);
-    if(!ok){toast('Bestemming niet gevonden — typ iets specifieker');btn.classList.remove('loading');btn.disabled=false;return;}
+    toast('Bestemming opzoeken…',3000);
+    const ok=await resolveInp(inpNaar,document.getElementById('drop-naar'),c=>naarCoord=c);
+    if(!ok){toast('Bestemming niet gevonden');btn.classList.remove('loading');btn.disabled=false;return;}
   }
-
   if(!vanCoord){toast('Vul een vertrekpunt in');btn.classList.remove('loading');btn.disabled=false;return;}
   if(!naarCoord){toast('Vul een bestemming in');btn.classList.remove('loading');btn.disabled=false;return;}
 
   try{
+    const k=getKey();
     const body={
-      locations:[
-        {lon:vanCoord[1],lat:vanCoord[0]},
-        {lon:naarCoord[1],lat:naarCoord[0]}
-      ],
-      costing:'motor_scooter',
-      costing_options:{motor_scooter:{
-        top_speed:scooterType==='snor'?25:45,
-        use_highways:0.0,    // vermijd snelwegen (A-wegen)
-        use_primary:1.0,     // gebruik N-wegen en kanaalwegen wel
-        use_tolls:0,
-        shortest:false       // snelste route, niet kortste
-      }},
-      directions_options:{language:'nl',units:'kilometers'}
+      points:[[vanCoord[1],vanCoord[0]],[naarCoord[1],naarCoord[0]]],
+      profile:'scooter',
+      custom_model:customModel(scooterType),
+      'ch.disable':true,          // vereist voor custom models
+      locale:'nl',
+      points_encoded:false,
+      calc_points:true
     };
 
-    const res=await fetch('https://valhalla1.openstreetmap.de/route',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    const r=await fetch(`https://graphhopper.com/api/1/route?key=${k}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
     });
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const data=await res.json();
-    if(!data.trip)throw new Error('geen route');
 
-    const coords=decodePoly(data.trip.legs[0].shape,6);
+    const data=await r.json();
+    if(!r.ok){
+      if(r.status===401)throw new Error('API key ongeldig — check instellingen');
+      if(r.status===429)throw new Error('Daglimiet bereikt (500 routes/dag bij gratis key)');
+      throw new Error(data.message||'Onbekende fout');
+    }
+    if(!data.paths?.length)throw new Error('Geen route gevonden');
 
-    if(laag1)map.removeLayer(laag1);if(laag2)map.removeLayer(laag2);
-    if(mVan)map.removeLayer(mVan);if(mNaar)map.removeLayer(mNaar);
+    const path=data.paths[0];
+    const coords=path.points.coordinates.map(c=>[c[1],c[0]]);
+
+    // Verwijder oude route
+    [laag1,laag2,mVan,mNaar].forEach(l=>{if(l)map.removeLayer(l);});
 
     laag1=L.polyline(coords,{color:'#000',weight:10,opacity:.07,lineJoin:'round',lineCap:'round'}).addTo(map);
     laag2=L.polyline(coords,{color:'#f97316',weight:5.5,opacity:.9,lineJoin:'round',lineCap:'round'}).addTo(map);
@@ -385,17 +584,21 @@ async function berekenRoute(){
     mNaar=L.marker(naarCoord,{icon:mkIco(true)}).addTo(map);
     map.fitBounds(laag2.getBounds(),{padding:[90,24],maxZoom:16});
 
-    const km=data.trip.summary.length.toFixed(1);
-    const mins=Math.round(data.trip.summary.time/60);
+    const km=(path.distance/1000).toFixed(1);
+    const mins=Math.round(path.time/60000);
     const h=Math.floor(mins/60),m=mins%60;
-    document.getElementById('s-km').innerHTML=`${km}<span class="rs-unit"> km</span>`;
+
+    document.getElementById('s-km').innerHTML=`${km}<span class="stat-unit"> km</span>`;
     document.getElementById('s-tijd').innerHTML=h>0
-      ?`${h}<span class="rs-unit">u </span>${m}<span class="rs-unit"> min</span>`
-      :`${mins}<span class="rs-unit"> min</span>`;
+      ?`${h}<span class="stat-unit">u </span>${m}<span class="stat-unit">m</span>`
+      :`${mins}<span class="stat-unit"> min</span>`;
+
+    const badge=scooterType==='brom'?'🛵 Bromfietsroute':'🛵 Snorfietsroute';
+    document.getElementById('rt-badge').textContent=badge;
     document.getElementById('rpanel').style.display='block';
 
   }catch(e){
-    toast('Kon route niet berekenen — probeer opnieuw');
+    toast(e.message||'Kon route niet berekenen');
     console.error(e);
   }finally{
     btn.classList.remove('loading');btn.disabled=false;
@@ -404,57 +607,27 @@ async function berekenRoute(){
 
 function mkIco(end){
   const s=end?18:14;
-  const inner=end?`<div style="width:6px;height:6px;border-radius:50%;background:white;position:absolute;inset:0;margin:auto"></div>`:'';
-  return L.divIcon({html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:#f97316;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.25);position:relative">${inner}</div>`,iconSize:[s,s],iconAnchor:[s/2,s/2],className:''});
-}
-
-// Valhalla encoded polyline decoder (precision 6)
-function decodePoly(str,prec=6){
-  let i=0,lat=0,lng=0;
-  const pts=[],f=Math.pow(10,prec);
-  while(i<str.length){
-    let b,s=0,r=0;
-    do{b=str.charCodeAt(i++)-63;r|=(b&31)<<s;s+=5;}while(b>=32);
-    lat+=(r&1)?~(r>>1):(r>>1);
-    s=0;r=0;
-    do{b=str.charCodeAt(i++)-63;r|=(b&31)<<s;s+=5;}while(b>=32);
-    lng+=(r&1)?~(r>>1):(r>>1);
-    pts.push([lat/f,lng/f]);
-  }
-  return pts;
+  const dot=end?`<div style="width:6px;height:6px;border-radius:50%;background:white;position:absolute;inset:0;margin:auto"></div>`:'';
+  return L.divIcon({html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:#f97316;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.25);position:relative">${dot}</div>`,iconSize:[s,s],iconAnchor:[s/2,s/2],className:''});
 }
 
 function wis(){
   [laag1,laag2,mVan,mNaar].forEach(l=>{if(l)map.removeLayer(l);});
   laag1=laag2=mVan=mNaar=null;
   vanCoord=naarCoord=null;
-  ['inp-van','inp-naar'].forEach(id=>{
-    const inp=document.getElementById(id);
-    inp.value='';inp.classList.remove('resolved');
-  });
+  ['inp-van','inp-naar'].forEach(id=>{const i=document.getElementById(id);i.value='';i.classList.remove('ok');});
   document.getElementById('rpanel').style.display='none';
-  document.getElementById('btn-gps').classList.remove('active');
+  document.getElementById('btn-gps').classList.remove('on');
 }
 
 let tt;
-let scooterType='brom'; // 'snor' = 25km/h snorfiets, 'brom' = 45km/h bromfiets
-function setType(t){
-  scooterType=t;
-  document.getElementById('tt-snor').classList.toggle('active',t==='snor');
-  document.getElementById('tt-brom').classList.toggle('active',t==='brom');
-}
 function toast(msg,dur=2600){
   const el=document.getElementById('toast');
   el.textContent=msg;el.style.display='block';
   clearTimeout(tt);tt=setTimeout(()=>el.style.display='none',dur);
 }
 
-// Automatisch centreren op locatie
-if(navigator.geolocation){
-  navigator.geolocation.getCurrentPosition(p=>{map.setView([p.coords.latitude,p.coords.longitude],13);},()=>{});
-}
-
-// Service worker — cache kaartpannen offline
+// Service worker — cache kaartpannen
 if('serviceWorker' in navigator){
   const sw=`self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',()=>clients.claim());self.addEventListener('fetch',e=>{if(e.request.url.includes('tile.openstreetmap.org')){e.respondWith(caches.open('tiles-v1').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;}))));}});`;
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
